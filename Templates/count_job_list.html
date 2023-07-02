@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style type="text/css" media="screen">
+        * {
+        margin: 0; 
+        padding: 0;
+        }
+        html, body {
+        overscroll-behavior: none;
+        }
+
+        div#banner { 
+            top: 0; 
+            left: 0; 
+            background-color: #107cce; 
+            width: 100vw;
+            position: sticky;
+            z-index: 100;
+            margin: 0px; 
+            padding: 0px;
+            
+        }
+        div#banner-content { 
+        width: 20vw; 
+        margin: 0 auto; 
+        padding: 0px; 
+        color: #f7eded;
+        font-size: 30px;
+        font-weight: bold;
+        text-align: left;
+        position: sticky;
+
+        
+        /* border: 1px solid #000; */
+        }
+        div#main-content { 
+        
+        position: relative;
+        
+        /* overflow-x: scroll; */
+        }
+
+        #scan{
+        width: 96vw;
+        border-width: 10px;
+        border-bottom: 1px;
+        border-color: #10ce59;
+        /* padding:5px; */
+        height: 10vw;
+        margin-right: 2%;
+        margin-left: 2%;
+        position: sticky;
+        top: 34px;
+        z-index: 100;
+        outline: none;
+        }
+
+        #save, #update{
+            width: 40vw;
+            height: 5vh;
+            background-color: #ffffff;
+            color: black;
+            font-family: 'Times New Roman', Times, serif;
+            border: 1px solid black;
+            margin-bottom: 10px;
+            
+        }
+        tfoot{
+            position: sticky;
+            z-index: 100;
+            bottom: 0px;
+            background-color: aliceblue;
+        }
+        /* hr{
+            padding-top: 1px;
+            padding-bottom: 1px;
+            color: black;
+            font-weight: bold;
+            margin-top: 2%;
+            margin-bottom: 2%;
+            width: 100vw;
+        } */
+        table{
+            width: 100vw;
+            border-collapse: collapse;
+            
+        }
+        /* tr{
+            margin-top: 60px;
+        } */
+        td,
+        thead{
+            padding: 1rem;
+            /* position: absolute; */
+        }
+        input{
+            border:none;
+            background-color: aliceblue;
+            width: 40px;
+            text-align: center;
+            
+        }
+        ::placeholder{
+            align-items: center;
+            text-align: center;
+            
+        }
+        tr#saperator { 
+        border-bottom: 1px solid black; 
+        width: 100vw;
+        height: 5px;
+        position: sticky;
+        z-index: 100;
+        top: 0px;
+        }
+        button{
+            width: 35px;
+            height: 30px; 
+            
+            font-size: larger; 
+            font-weight: bold; 
+            background-color: #107cce;
+            color: #f7eded;
+            border: none;
+        }
+        
+    </style>
+</head>
+
+<body>
+    <main>
+        <div id="banner">
+            <div id="banner-content">
+                Stock
+            </div>
+        </div>
+        <div id="main-content">
+            <table id="table">
+                <thead>
+                    <!-- <form  id="code-scan" action="code-scan" method="post"></form> -->
+                        <!-- <tr> -->
+
+                        <!-- <button id="scan" name="scan" type="submit" >Scan Item</button> -->
+                    <input type="text" name="mytext" value="" placeholder="Scan EAN" id="scan" autofocus/>
+                            
+                        <!-- </tr> -->
+                    <!-- </form> -->
+                    <tr id="saperator"></tr>
+                </thead>
+            
+                <!-- <tr id="bordered"></tr> -->
+                <script language="javascript">
+                    var globalcount=0;
+                    function addRow()
+                    {
+                        document.getElementById('plus').id= "plus"+globalcount;
+                        document.getElementById('minus').id= "minus"+globalcount;
+                        // var gc = toString(globalcount)
+                        // var temp = "counter"+gc
+                        document.getElementById('counter').setAttribute('name', "counter"+globalcount);
+                        document.getElementById('counter').id= "counter"+globalcount;
+                        
+                        globalcount++;
+                        //the rest
+                    }
+                
+                </script>
+                <form action="submit_count" method="POST">
+                    {%for row in table%}
+                    
+                    <tr id="{{loop.index0}}">
+                        <td><p>({{row.Article}})</p> </td>
+
+                        <td style="text-align: right;"><button id="plus" type="button" onclick="plus_counter(this) ">+</button><input id="counter" name="counter" placeholder="0" type="number" /> <button id="minus" type="button" onclick="minus_counter(this)">−</button></td>
+                    </tr>
+                    <script>addRow()</script>
+                    {% endfor %}
+                    
+                    
+                    <tfoot>
+                        
+                        <td>
+                            <button id="update" name="update" type="submit">update</button>
+                        </td>
+                        <td>
+                            <button id="save" type="button">Save for later</button>
+                        </td>
+                        
+                    </tfoot>
+                </form>
+            </table>
+        </div>
+        <script>
+            var text = document.getElementById("scan");
+            var form = document.getElementById("code-scan");
+            // var tr = document.getElementById('1')
+            var first_row = document.getElementById('0')
+            var table = document.querySelector('table');
+            text.onkeyup = function() {
+                if( text.value.length == 13 ) {
+                    // form.submit();
+                    var ean = text.value
+                    // console.log(ean)
+                    var row = document.getElementById(ean)
+                    if(row){
+
+                        console.log("yes")
+                        // Remove the row from its current position
+                        row.parentNode.removeChild(row);
+                        // move to top
+                        table.insertBefore(row, table.firstChild);
+                        window.scrollTo({ top: 0, behavior: 'instant' });
+                    }
+                    text.value = "";
+                }
+            }
+        </script>
+        <script>
+            function plus_counter(ele){
+            const plusButtonid = ele.id
+            const plusButton = document.getElementById(plusButtonid)
+            const inputFieldid = plusButtonid.replace('plus', 'counter' )
+            const inputField = document.getElementById(inputFieldid)
+            
+
+            // plusButton.addEventListener('click', event => {
+                // event.preventDefault();
+                const currentValue = Number(inputField.value) || 0;
+                inputField.value = currentValue + 1;
+            // });
+            }
+
+            function minus_counter(ele){
+            const minusButtonid = ele.id
+            const minusButton = document.getElementById(minusButtonid)
+            const inputFieldid = minusButtonid.replace('minus', 'counter' )
+            const inputField = document.getElementById(inputFieldid)
+
+            // minusButton.addEventListener('click', event => {
+            //     event.preventDefault();
+                const currentValue = Number(inputField.value) || 0;
+                if(currentValue>0){
+                    inputField.value = currentValue - 1;
+                }
+            // });
+            }
+        </script>
+        <!-- <script>
+            document.getElementById('scan').on('submit', '[type=submit]', function () {
+                var scan = document.getElementById('scan').value
+                var row = document.getElementsByName(scan); // row with product EAN
+
+                // move to top
+                row.insertBefore( row.parent().find('td:first-child') ); 
+                console.log("working")
+                
+                
+            });
+        </script> -->
+    </main>
+</body>
